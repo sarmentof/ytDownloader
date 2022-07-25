@@ -9,10 +9,14 @@
 # Licence:     MIT
 #-------------------------------------------------------------------------------
 from colorama import Fore, Style
+import os
 from pytube import YouTube
 from pytube.cli import on_progress
-import os
 from http.client import IncompleteRead
+import sys
+
+module_pytube = 'pytube' in sys.modules
+module_colorama = 'colorama' in sys.modules
 
 link = input("Digite o link: ")
 sub_dir = "Downloads"
@@ -21,7 +25,19 @@ yt = YouTube(link,on_progress_callback=on_progress)
 
 def main():
     try:
+        if module_pytube == False:
+            print(f'{Fore.RED}[ERRO]{Style.RESET_ALL} É preciso instalar o modulo pytube!')
+        if module_colorama == False:
+            print(f'{Fore.RED}[ERRO]{Style.RESET_ALL} É preciso instalar o modulo colorama!')
+
         def check_if_exists(file):
+            '''
+            Checa se o arquivo já existe na pasta Downloads.
+                Parameter:
+                    file: nome do arquivo a ser salvo na pasta
+                Returns:
+                    True or False
+            '''
             if os.path.exists(path + '\\' + file):
                 to_delete = input('Arquivo já existe. Remover? (s/N): ')
                 if to_delete == 's':
@@ -33,6 +49,9 @@ def main():
                 return True
 
         def download():
+            '''
+            Faz o download do vídeo caso o arquivo não exista previamente.
+            '''
             print(f'{Fore.MAGENTA}[>>]{Style.RESET_ALL} Baixando: {Fore.YELLOW}{yt.title}{Style.RESET_ALL}...')
             yt.streams.filter(progressive=True, file_extension='mp4').get_highest_resolution().download(path, max_retries=10)
             print('')
